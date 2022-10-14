@@ -50,7 +50,7 @@ int ESP_Com::Socket::Receive(void* buffer, size_t size, int flags /* = 0 */)
 	return result;
 }
 
-int ESP_Com::Socket::Send(void* buffer, size_t size, int flags /* = 0 */)
+int ESP_Com::Socket::Send(const void* buffer, size_t size, int flags /* = 0 */)
 {
 	if (handle < 0) return 0;
 	size_t toWrite = size;
@@ -69,17 +69,22 @@ int ESP_Com::Socket::Send(void* buffer, size_t size, int flags /* = 0 */)
 	return size;
 }
 
-
-
-
-
-bool ESP_Com::Socket::Connect(std::string host, int port)
+int ESP_Com::Socket::SendTo(Endpoint endpoint, const void* buffer, size_t size, int flags /* = 0 */)
 {
-	struct sockaddr_in dest_addr;
-	inet_pton(AF_INET, host.c_str(), &dest_addr.sin_addr);
-	dest_addr.sin_family = AF_INET;
-	dest_addr.sin_port = htons(port);
-	int err = connect(handle, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+	if (handle < 0) return 0;
+	int send = sendto(handle, buffer, size, flags, endpoint.GetSockAddr(), endpoint.Size());
+	if (send < 0) {
+		ESP_LOGE(TAG, "Error occurred during sending: errno %d, %s", errno, strerror(errno));
+		return send;
+	}
+	return send;
+}
+
+
+
+bool ESP_Com::Socket::Connect(Endpoint endpoint)
+{
+	int err = connect(handle, endpoint.GetSockAddr(), endpoint.Size());
 	if (err != 0) {
 		ESP_LOGE(TAG, "Socket unable to connect: errno %d, %s", errno, strerror(errno));
 		return false;
@@ -102,15 +107,9 @@ bool ESP_Com::Socket::Init(int domain, int type, int protocol)
 }
 
 
-bool ESP_Com::Socket::Bind(int port)
+bool ESP_Com::Socket::Bind(Endpoint endpoint)
 {
-	struct sockaddr_storage dest_addr;
-	struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&dest_addr;
-	dest_addr_ip4->sin_addr.s_addr = htonl(INADDR_ANY);
-	dest_addr_ip4->sin_family = AF_INET;
-	dest_addr_ip4->sin_port = htons(port);
-	
-	int err = bind(handle, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+	int err = bind(handle, endpoint.GetSockAddr(), endpoint.Size());
 	if (err != 0) {
 		ESP_LOGE(TAG, "Socket unable to bind: errno %d, %s", errno, strerror(errno));
 		Close();
@@ -157,3 +156,5 @@ bool ESP_Com::Socket::Listen(int backlog)
 	}	
 	return true;
 }
+
+
