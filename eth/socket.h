@@ -16,7 +16,7 @@ namespace ESP_Com
 	class Socket;
 	class Endpoint
 	{
-		struct sockaddr_storage addr;
+		struct sockaddr_storage addr; // Large enough for both IPv4 or IPv6
 		
 	public:
 		
@@ -39,15 +39,11 @@ namespace ESP_Com
 		}
 
 		void Set(std::string host, int port)
-		{
-			struct sockaddr_in dest_addr;
-			//inet_pton(AF_INET, host.c_str(), &dest_addr.sin_addr);
-			//dest_addr.sin_family = AF_INET;
-			//dest_addr.sin_port = htons(port);
-			
-			dest_addr.sin_addr.s_addr = inet_addr(host.c_str());
-			dest_addr.sin_family = AF_INET;
-			dest_addr.sin_port = htons(port);
+		{			
+			struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&addr;
+			dest_addr_ip4->sin_addr.s_addr = inet_addr(host.c_str());
+			dest_addr_ip4->sin_family = AF_INET;
+			dest_addr_ip4->sin_port = htons(port);
 		}
 	};
 	
@@ -67,6 +63,7 @@ namespace ESP_Com
 		bool InitTCP() { return Init(AF_INET, SOCK_STREAM, IPPROTO_IP); };
 		bool InitUDP() { return Init(AF_INET, SOCK_DGRAM, IPPROTO_IP); };
 		void SetKeepAlive(int enable, int idle, int interval, int count);
+		void SetTimeout(TimeSpan timespan);
 		int Receive(void* buffer, size_t size, int flags = 0);
 		int Send(const void* buffer, size_t size, int flags = 0);
 		int SendTo(Endpoint endpoint, const void* buffer, size_t size, int flags = 0);

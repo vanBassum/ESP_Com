@@ -15,7 +15,7 @@ namespace ESP_Com
 		struct Message
 		{
 			Facilities Facility = Facilities::user;
-			Levels Severity = Levels::Debug;
+			Levels Level = Levels::Debug;
 			DateTime Timestamp;
 			std::string Hostname		  = "-";
 			std::string Application		  = "-";
@@ -28,7 +28,7 @@ namespace ESP_Com
 			
 			std::string ToString()
 			{
-				int priority = (int)Facility * 8 + (int)Severity;
+				int priority = (int)Facility * 8 + (int)Level;
 				
 				std::string result;
 				
@@ -55,7 +55,6 @@ namespace ESP_Com
 				result.append(" ");
 				
 				result.append(Message);
-				result.append(" ");
 				
 				return result;
 			}

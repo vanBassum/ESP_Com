@@ -101,8 +101,8 @@ bool ESP_Com::Socket::Init(int domain, int type, int protocol)
 		ESP_LOGE(TAG, "Unable to create socket: errno %d, %s", errno, strerror(errno));
 		return false;
 	}
-	int opt = 1;
-	setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	//int opt = 1;
+	//setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	return true;
 }
 
@@ -158,3 +158,13 @@ bool ESP_Com::Socket::Listen(int backlog)
 }
 
 
+
+
+void ESP_Com::Socket::SetTimeout(TimeSpan timespan)
+{
+	struct timeval timeout;
+	timeout.tv_sec = timespan.GetSeconds();
+	timeout.tv_usec = (timespan.GetMiliSeconds() % 1000) * 1000;
+	setsockopt(handle, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
+	
+}

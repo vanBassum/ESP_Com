@@ -24,15 +24,23 @@ namespace ESP_Com
 			{
 				ep.Set(host, port);
 				listener.InitUDP();
+				listener.SetTimeout(TimeSpan::FromSeconds(10));
 			}
 
 			void Send(Message message)
 			{
 				std::string raw = message.ToString();
 				listener.SendTo(ep, raw.c_str(), raw.length());
-				
 			}
 			
+			void Log(Levels level, std::string message)
+			{
+				Message msg;
+				msg.Level = level;
+				msg.Message = message;
+				msg.Timestamp = DateTime::Now();
+				Send(msg);
+			}
 			
 			
 			
