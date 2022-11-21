@@ -11,3 +11,14 @@ esp_err_t ESP_Com::SPIDevice::PollingTransmit(spi_transaction_t* transaction)
 {
 	return spi_device_polling_transmit(handle, transaction);  	//Transmit!
 }
+
+void ESP_Com::SPIDevice::ReleaseBus()
+{
+	spi_device_release_bus(handle);
+}
+
+
+esp_err_t ESP_Com::SPIDevice::AcquireBus()
+{
+	return spi_device_acquire_bus(handle, portMAX_DELAY);
+}

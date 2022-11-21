@@ -12,6 +12,8 @@ namespace ESP_Com
 	
 		esp_err_t Init(SPIBus& bus, spi_device_interface_config_t* config);
 		esp_err_t PollingTransmit(spi_transaction_t* transaction);
+		esp_err_t AcquireBus();
+		void ReleaseBus();
 	};
 }
 
